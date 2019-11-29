@@ -30,6 +30,25 @@ public class WxUserServiceImpl implements WxUserService {
 
     @Override
     public int insertSelective(WxUser record) {
-        return wxUserMapper.insertSelective(record);
+       return wxUserMapper.insertSelective(record);
+    }
+
+    @Override
+    public int saveWxUser(WxUser wxUser) {
+        WxUser wx=wxUserMapper.selectWxUserByOpenId(wxUser.getOpenid());
+        if(wx==null){
+            return wxUserMapper.insertSelective(wxUser);
+        }else{
+            wxUser.setUserId(wx.getUserId());
+            return wxUserMapper.updateByPrimaryKeySelective(wxUser);
+        }
+    }
+
+    @Override
+    public int unSubscrbe(String openId) {
+        //取消关注
+        WxUser wx=wxUserMapper.selectWxUserByOpenId(openId);
+        wx.setSubscribe(0);
+        return wxUserMapper.updateByPrimaryKeySelective(wx);
     }
 }

@@ -98,4 +98,13 @@ public class UserRealm extends AuthorizingRealm {
     public void clearCachedAuthorizationInfo() {
         this.clearCachedAuthorizationInfo(SecurityUtils.getSubject().getPrincipals());
     }
+
+    @Override
+    public boolean supports(AuthenticationToken token) {
+        if(token!=null&&token instanceof WxToken){
+            return true;
+        }else{
+            return super.supports(token);
+        }
+    }
 }

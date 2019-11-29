@@ -14,4 +14,8 @@ public interface WxUserService {
     void updateUserInfo(WxUser user);
 
     int insertSelective(WxUser record);
+
+    int saveWxUser(WxUser wxUser);
+
+    int unSubscrbe(String openId);
 }

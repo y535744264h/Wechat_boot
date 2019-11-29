@@ -2,6 +2,7 @@ package com.cctv.project.wechat.handler;
 
 import com.cctv.project.wechat.base.entity.WxUser;
 import com.cctv.project.wechat.base.service.WxUserService;
+import com.cctv.project.wechat.system.service.ConfigService;
 import com.cctv.project.wechat.system.util.StringUtils;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.session.WxSessionManager;
@@ -9,7 +10,9 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import me.chanjar.weixin.mp.builder.kefu.TextBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -21,6 +24,11 @@ public class SubscribeHandler extends AbstractHandler {
     @Autowired
     WxUserService wxUserService;
 
+    @Autowired
+    ConfigService configService;
+
+    @Value("wechat.userName")
+    String userName;
 
 
 
@@ -37,7 +45,7 @@ public class SubscribeHandler extends AbstractHandler {
                 .userInfo(wxMessage.getFromUser(), null);
             if (userWxInfo != null) {
                 WxUser wxUser=new WxUser(userWxInfo);
-                wxUserService.insertSelective(wxUser);
+                wxUserService.saveWxUser(wxUser);
             }
         } catch (WxErrorException e) {
             if (e.getError().getErrorCode() == 48001) {
@@ -58,11 +66,16 @@ public class SubscribeHandler extends AbstractHandler {
         }
 
         try {
-            //String msg=wxConfigService.getConfigValueByKey("welcome_msg");
-            String msg="nihao";
+
+            String msg=configService.selectConfigByKey("welcome_msg");
             if(StringUtils.isNotEmpty(msg)){
-                //return new TextBuilder().build(msg, wxMessage, weixinService);
-                return null;
+                WxMpXmlOutMessage wxMpXmlOutMessage= WxMpXmlOutMessage.TEXT()
+                        .content(msg)
+                        .fromUser(userName)
+                        .toUser(wxMessage.getFromUser())
+                        .build();
+                System.out.println(wxMpXmlOutMessage.toXml());
+                return wxMpXmlOutMessage;
             }
         } catch (Exception e) {
             this.logger.error(e.getMessage(), e);

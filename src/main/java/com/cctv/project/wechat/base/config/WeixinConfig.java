@@ -26,10 +26,10 @@ import static me.chanjar.weixin.mp.constant.WxMpEventConstants.POI_CHECK_NOTIFY;
 @Configuration
 public class WeixinConfig {
 
-    @Value("${wechat.app-id}")
+    @Value("${wechat.appId}")
     private String appId;
 
-    @Value("${wechat.app-secret}")
+    @Value("${wechat.appSecret}")
     private String appSecret;
 
     @Value("${wechat.token}")
